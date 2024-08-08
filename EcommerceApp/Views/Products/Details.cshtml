@@ -1,0 +1,31 @@
+﻿@model EcommerceApp.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6 d-flex justify-content-center">
+            <img src="~/img/Products/@($"{Model.Id}.jpg")" alt="@Model.Name" class="img-fluid rounded shadow-sm" style="max-height: 500px; object-fit: cover;">            
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <h1 class="display-4">@Model.Name</h1>
+            <p class="text-muted">@Model.Category?.Name</p>
+            <p class="lead">@Model.Description</p>
+            <h3 class="text-primary">@Model.Price.ToString("C2")</h3>
+
+            <hr class="my-4" />
+
+            <form asp-controller="Carts" asp-action="AddToCart" method="post" class="d-inline">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <button type="submit" class="btn btn-success btn-lg">Add to Cart</button>
+            </form>
+
+            <a asp-action="Index" class="btn btn-secondary btn-lg ms-2">Back to Products</a>
+        </div>
+    </div>
+</div>

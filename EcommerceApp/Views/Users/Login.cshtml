@@ -1,0 +1,32 @@
+﻿@using EcommerceApp.Models.ViewModels.Auth
+@model SignInViewModel
+
+<h3>Giris</h3>
+<hr />
+<form asp-action="Login">
+    <table>
+        <tr>
+            <td colspan="3">
+                <div asp-validation-summary="ModelOnly"></div>
+            </td>
+        </tr>
+        <tr>
+            <td><label asp-for="UserName"></label></td>
+            <td><input asp-for="UserName" /></td>
+            <td><span asp-validation-for="UserName"></span></td>
+        </tr>
+        <tr>
+            <td><label asp-for="Password"></label></td>
+            <td><input asp-for="Password" type="password" /></td>
+            <td><span asp-validation-for="Password"></span></td>
+        </tr>
+        <tr>
+            <td><label asp-for="RememberMe"></label></td>
+            <td><input asp-for="RememberMe" type="checkbox" /></td>
+            <td><span asp-validation-for="RememberMe"></span></td>
+        </tr>
+        <tr>
+            <td colspan="3"><input type="submit" value="Giris" /></td>
+        </tr>
+    </table>
+</form>

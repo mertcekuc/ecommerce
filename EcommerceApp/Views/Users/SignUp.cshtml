@@ -1,0 +1,42 @@
+﻿@using EcommerceApp.Models.ViewModels.Auth
+
+@model UserViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<h3>Üye Ol</h3>
+
+<hr />
+<form asp-action="SignUp">
+    <table>
+        <tr>
+            <td colspan="3"><div asp-validation-summary="ModelOnly"></div></td>
+        </tr>
+        <tr>
+            <td><label asp-for="UserName"></label></td>
+            <td><input asp-for="UserName" /></td>
+            <td><span asp-validation-for="UserName"></span></td>
+        </tr>
+        <tr>
+            <td><label asp-for="Email"></label></td>
+            <td><input asp-for="Email" /></td>
+            <td><span asp-validation-for="Email"></span></td>
+        </tr>
+        <tr>
+            <td><label asp-for="Password"></label></td>
+            <td><input asp-for="Password" /></td>
+            <td><span asp-validation-for="Password"></span></td>
+        </tr>
+        <tr>
+			<td><label asp-for="FirstName"></label></td>
+			<td><input asp-for="FirstName" /></td>
+			<td><span asp-validation-for="FirstName"></span></td>
+        <tr>
+            <td><label asp-for="LastName"></label></td>
+            <td><input asp-for="LastName" /></td>
+            <td><span asp-validation-for="LastName"></span></td>
+        </tr>
+        <tr>
+            <td colspan="3"><input type="submit" value="Üye Ol" /></td>
+        </tr>
+    </table>
+</form>
