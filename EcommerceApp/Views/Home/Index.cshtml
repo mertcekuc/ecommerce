@@ -1,19 +1,101 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-@using Microsoft.AspNetCore.Identity
-@inject UserManager<User> UserManager
-@inject SignInManager<User> SignInManager
+﻿@model EcommerceApp.Models.ViewModels.HomeIndexViewModel;
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    @if(SignInManager.IsSignedIn(User))
-	{
-		<p>Welcome, @User.Identity.Name</p>
-	}
-	else
-	{
-		<p>Welcome, Guest</p>
-	}
+@{
+    ViewData["Title"] = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string[] extensions = { ".jpg", ".jpeg", ".png", ".gif" };
+    var imageLoaded = false;
+}
+
+<div class="container-fluid p-0">
+    <!-- Hero Section -->
+    <div class="hero-section text-center text-white d-flex align-items-center justify-content-center" style="background-image: url('/img/hero.jpg'); height: 80vh; background-size: cover; background-position: center;">
+        <div>
+            <h1 class="display-3">Welcome to EcommerceApp</h1>
+            <p class="lead">Find the best products at unbeatable prices</p>
+            <a href="#featured-products" class="btn btn-primary btn-lg mt-4">Shop Now</a>
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    <section id="featured-products" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Featured Products</h2>
+            <div class="row">
+                @foreach (var item in Model.Products)
+                {
+                        <div class="col-md-3">
+                            <div class="card shadow-sm mb-4">
+                            @foreach (string ext in extensions)
+                            {
+                                        <img src="~/img/Products/@($"{item.Id}{ext}")" 
+                                             class="card-img-top" 
+                                             onload="imageLoaded=true;" 
+                                             onerror="this.style.display='none';" 
+                                             style="height: 250px; width: 100%; object-fit: cover;">
+                            }
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">@item.Name</h5>
+                                    <p class="card-text text-muted">@((item.Price).ToString("C2"))</p>
+                                    <a href="/Products/Details/@item.Id" class="btn btn-success btn-sm">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Shop by Category</h2>
+            <div class="row">
+                @for (int i = 1; i <= 3; i++)
+                {
+                        <div class="col-md-4">
+                            <div class="card shadow-sm mb-4">
+                                <img src="~/img/Categories/@($"{i}.jpg")" class="card-img-top" alt="Category @i" style="height: 250px; width: 100%; object-fit: cover;">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Category @i</h5>
+                                    <a href="#" class="btn btn-primary btn-sm">Explore</a>
+                                </div>
+                            </div>
+                        </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-5 text-white text-center" style="background-color: #343a40;">
+        <div class="container">
+            <h2 class="display-4">Join Our Newsletter</h2>
+            <p class="lead">Stay updated with the latest offers and products</p>
+            <form class="form-inline justify-content-center mt-4">
+                <div class="form-group">
+                    <input type="email" class="form-control form-control-lg me-2" placeholder="Enter your email" />
+                </div>
+                <button type="submit" class="btn btn-danger btn-lg">Subscribe</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-muted py-4">
+        <div class="container">
+            <p>&copy; 2024 EcommerceApp | <a href="#" class="text-muted">Privacy Policy</a></p>
+        </div>
+    </footer>
 </div>
+
+<style>
+    .hero-section {
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.1)), url('/img/hero.jpg');
+    }
+    .card-img-top {
+        height: 250px; /* Set a consistent height */
+        width: 100%; /* Ensure the image takes full width */
+        object-fit: cover; /* Cover the container while maintaining aspect ratio */
+    }
+</style>
