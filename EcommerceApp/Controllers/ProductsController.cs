@@ -53,7 +53,7 @@ namespace EcommerceApp.Controllers
 
             if (file != null && file.Length > 0)
             {
-                // Ensure the directory exists
+                
                 var directoryPath = Path.Combine("wwwroot", "img", "Products");
                 if (!Directory.Exists(directoryPath))
                 {
@@ -64,7 +64,6 @@ namespace EcommerceApp.Controllers
                 var fileExtension = Path.GetExtension(file.FileName);
                 var filePath = Path.Combine(directoryPath, $"{product.Id}{fileExtension}");
 
-                // Save the file
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     file.CopyTo(stream);
@@ -80,48 +79,98 @@ namespace EcommerceApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete() {
+        public IActionResult Delete()
+        {
             int id = Convert.ToInt32(Request.Form["Id"]);
-            var product = _context.Products.Find(id);
-            _context.Products.Remove(product);
-            var cartDetails = _context.CartDetails.Where(cd => cd.ProductId == id);
-            _context.CartDetails.RemoveRange(cartDetails);
-            _context.SaveChanges();
-            return RedirectToAction("Index");
-        }
 
-        public IActionResult Edit(int id) {
-            return View(_context.Products.Find(id));
-        }
-        [HttpPost]
-        public IActionResult Edit()
-        {   
-            int id = Convert.ToInt32(Request.Form["Id"]);
             var product = _context.Products.Find(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            product.Name = Request.Form["Name"];
-            product.Price = Convert.ToDecimal(Request.Form["Price"]);
-            product.Description = Request.Form["Description"];
-            product.ModifiedDate = DateTime.Now;
+            _context.Products.Remove(product);
 
-            if (int.TryParse(Request.Form["CategoryId"], out int categoryId))
+            var cartDetails = _context.CartDetails.Where(cd => cd.ProductId == id);
+            _context.CartDetails.RemoveRange(cartDetails);
+
+            _context.SaveChanges();
+
+            var directoryPath = Path.Combine("wwwroot", "img", "Products");
+            string[] extensions = { ".jpg", ".jpeg", ".png", ".gif" };
+
+            foreach (var ext in extensions)
             {
-                product.CategoryId = categoryId;
+                var filePath = Path.Combine(directoryPath, $"{id}{ext}");
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
             }
 
-            if (int.TryParse(Request.Form["ModifiedUserId"], out int modifiedUserId))
+            return RedirectToAction("Index");
+        }
+
+
+        public IActionResult Edit(int id) {
+            ViewBag.Categories = _context.Categories.ToList();
+            return View(_context.Products.Find(id));
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Product model)
+        {
+            if (model == null || model.Id == 0)
             {
-                product.ModifiedUserId = modifiedUserId;
+                return NotFound();
+            }
+
+            var product = _context.Products.Find(model.Id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            product.Name = model.Name;
+            product.Price = model.Price;
+            product.Description = model.Description;
+            product.ModifiedDate = DateTime.Now;
+
+            if (model.CategoryId > 0)
+            {
+                product.CategoryId = model.CategoryId;
+            }
+
+            if (model.ModifiedUserId > 0)
+            {
+                product.ModifiedUserId = model.ModifiedUserId;
             }
 
             _context.Products.Update(product);
             _context.SaveChanges();
+
+            // Handle the file upload
+            var file = Request.Form.Files["img"];
+            if (file != null && file.Length > 0)
+            {
+                var directoryPath = Path.Combine("wwwroot", "img", "Products");
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                var fileExtension = Path.GetExtension(file.FileName);
+                var filePath = Path.Combine(directoryPath, $"{product.Id}{fileExtension}");
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+            }
+
             return RedirectToAction("Edit", new { id = product.Id });
         }
+
 
     }
 }

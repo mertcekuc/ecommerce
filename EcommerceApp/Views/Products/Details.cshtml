@@ -2,13 +2,26 @@
 
 @{
     ViewData["Title"] = "Product Details";
+    var imageLoaded = false;
+    string[] extensions = { ".jpg", ".jpeg", ".png", ".gif" };
 }
 
 <div class="container mt-5">
     <div class="row">
         <!-- Product Image -->
         <div class="col-md-6 d-flex justify-content-center">
-            <img src="~/img/Products/@($"{Model.Id}.jpg")" alt="@Model.Name" class="img-fluid rounded shadow-sm" style="max-height: 500px; object-fit: cover;">            
+            @foreach (var extension in extensions)
+            {
+                if (!imageLoaded)
+                {
+                            <img src="~/img/Products/@($"{Model.Id}{extension}")" 
+                                 alt="@Model.Name" 
+                                 class="img-fluid rounded shadow-sm"
+                                 style="max-height: 500px; object-fit: cover;"
+                                 onerror="this.style.display='none';" 
+                                 onload="this.style.display='block'; imageLoaded=true;" />
+                }
+            }
         </div>
 
         <!-- Product Details -->
