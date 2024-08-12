@@ -1,4 +1,7 @@
 ﻿@model EcommerceApp.Models.Product
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<User> SignInManager
 
 @{
     ViewData["Title"] = "Product Details";
@@ -9,36 +12,210 @@
 <div class="container mt-5">
     <div class="row">
         <!-- Product Image -->
-        <div class="col-md-6 d-flex justify-content-center">
+        <div class="col-md-6 d-flex justify-content-center align-items-center">
             @foreach (var extension in extensions)
             {
                 if (!imageLoaded)
                 {
-                            <img src="~/img/Products/@($"{Model.Id}{extension}")" 
-                                 alt="@Model.Name" 
-                                 class="img-fluid rounded shadow-sm"
-                                 style="max-height: 500px; object-fit: cover;"
-                                 onerror="this.style.display='none';" 
-                                 onload="this.style.display='block'; imageLoaded=true;" />
+                     <div class="image-wrapper position-relative">
+                          <img src="~/img/Products/@($"{Model.Id}{extension}")" 
+                                           alt="@Model.Name" 
+                                          class="img-fluid rounded shadow-lg"
+                                           style="max-height: 500px; object-fit: cover; display: none; transition: opacity 0.5s ease-in-out;"
+                                           onerror="this.style.display='none';" 
+                                           onload="this.style.display='block'; imageLoaded=true;" />
+                        <div class="image-overlay position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
+                         <span class="badge bg-primary text-white">New Arrival</span>
+                         </div>
+                      </div>
                 }
             }
         </div>
 
         <!-- Product Details -->
         <div class="col-md-6">
-            <h1 class="display-4">@Model.Name</h1>
-            <p class="text-muted">@Model.Category?.Name</p>
-            <p class="lead">@Model.Description</p>
-            <h3 class="text-primary">@Model.Price.ToString("C2")</h3>
+            <h1 class="display-4 fw-bold">@Model.Name</h1>
+            <p class="text-muted mb-3"><i class="bi bi-tag-fill"></i> @Model.Category?.Name</p>
+            <p class="lead mb-4">@Model.Description</p>
+            <h3 class="text-primary fw-bold">@Model.Price.ToString("C2")</h3>
 
             <hr class="my-4" />
 
-            <form asp-controller="Carts" asp-action="AddToCart" method="post" class="d-inline">
+            <form id="addToCartForm" asp-controller="Carts" asp-action="AddToCart" method="post" class="d-inline">
                 <input type="hidden" name="productId" value="@Model.Id" />
-                <button type="submit" class="btn btn-success btn-lg">Add to Cart</button>
+                <button type="submit" class="btn btn-success btn-lg px-4 py-2"><i class="bi bi-cart-plus"></i> Add to Cart</button>
             </form>
 
-            <a asp-action="Index" class="btn btn-secondary btn-lg ms-2">Back to Products</a>
+            <a asp-action="Index" class="btn btn-secondary btn-lg ms-2 px-4 py-2"><i class="bi bi-arrow-left"></i> Back to Products</a>
         </div>
     </div>
 </div>
+
+<div class="mt-5">
+    <h3 class="border-bottom pb-2 mb-4">Comments</h3>
+
+    <!-- Comment Form -->
+    @if (SignInManager.IsSignedIn(User))
+    {
+                <form asp-action="AddComment" method="post" class="mb-4">
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <div class="form-group mb-3">
+                        <label for="content" class="form-label fw-bold">Leave a Comment</label>
+                        <textarea name="Content" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-send-fill"></i> Add Comment</button>
+                </form>
+    }
+
+    <!-- Display Comments -->
+    <div class="comments-list">
+        @if (Model.Comments.Count == 0)
+        {
+                    <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
+        }
+        else
+        {
+            @foreach (var comment in Model.Comments)
+            {
+                                <div class="comment-item p-3 mb-3 bg-light rounded">
+                                    <h5 class="fw-bold mb-1">@comment.User.UserName</h5>
+                                    <p class="mb-1">@comment.Comment1</p>
+                                    <small class="text-muted">Posted on @comment.CreatedDate.ToString("MMM d, yyyy h:mm tt")</small>
+                                    <hr class="my-2" />
+                                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="addToCartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Product added to cart!
+        </div>
+    </div>
+
+
+</div>
+
+<a href="#" class="back-to-top btn btn-primary"><i class="bi bi-arrow-up"></i></a>
+
+<style>
+    .image-wrapper {
+        max-width: 100%;
+        max-height: 500px;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+
+    .image-overlay {
+        background-color: rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .image-wrapper:hover .image-overlay {
+        opacity: 1;
+    }
+
+    .comments-list .comment-item {
+        border: 1px solid #ddd;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .comments-list .comment-item:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+        z-index: 99;
+    }
+    .btn-comment{
+        margin-bottom: 10px;}
+</style>
+
+<script>
+    document.querySelectorAll('.image-wrapper img').forEach(img => {
+        img.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+
+        img.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+
+    document.querySelector('.btn-success').addEventListener('click', function(event) {
+        event.preventDefault();
+        const form = document.getElementById('addToCartForm');
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                const toast = document.getElementById('addToCartToast');
+                const toastInstance = new bootstrap.Toast(toast);
+                toastInstance.show();
+            } else {
+                console.error('Failed to add to cart');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.querySelector('.back-to-top').addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 200) {
+            document.querySelector('.back-to-top').style.display = 'block';
+        } else {
+            document.querySelector('.back-to-top').style.display = 'none';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const commentsPerPage = 3;
+        const commentsList = document.querySelector('.comments-list');
+        const comments = commentsList.querySelectorAll('.comment-item');
+        let currentCommentIndex = 0;
+
+        function showComments() {
+            for (let i = 0; i < commentsPerPage && currentCommentIndex < comments.length; i++, currentCommentIndex++) {
+                comments[currentCommentIndex].style.display = 'block';
+            }
+            if (currentCommentIndex >= comments.length) {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        comments.forEach(comment => comment.style.display = 'none');
+        showComments();
+
+        const loadMoreBtn = document.createElement('button');
+        loadMoreBtn.textContent = 'Load More Comments';
+        loadMoreBtn.classList.add('btn', 'btn-outline-primary', 'mt-3','btn-comment');
+        loadMoreBtn.addEventListener('click', showComments);
+        commentsList.after(loadMoreBtn);
+    });
+</script>

@@ -11,49 +11,112 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EcommerceApp.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        /* Navbar Styling */
+        .navbar {
+            background-color: #333;
+            transition: background-color 0.3s ease;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #fff !important;
+            font-size: 1.5rem;
+        }
+        .navbar-nav .nav-link {
+            color: #fff !important;
+            transition: color 0.3s ease;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #f0ad4e !important;
+        }
+        .navbar-toggler {
+            border: none;
+            background-color: #f0ad4e;
+        }
+        .navbar-toggler-icon {
+            color: #fff;
+        }
+
+        /* Footer Styling */
+        footer {
+            background-color: #333;
+            color: #bbb
+            padding: 0;
+            text-align: center;
+        }
+        footer a {
+            color: #f0ad4e;
+        }
+
+        /* Button Styling */
+        .btn {
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-info:hover, .btn-success:hover, .btn-danger:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Container Styling */
+        .container {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        @@keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
 </head>
-<body>
+<body class="fade-in">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EcommerceApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
+                            <a class="nav-link" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
+                            <a class="nav-link" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
                         </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Carts" asp-action="Index">Cart</a>
-                                </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-area="" asp-controller="Carts" asp-action="Index">Cart</a>
+                                    </li>
                         }
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         @if (SignInManager.IsSignedIn(User))
                         {
-                                <li class="nav-item">
-                                    <a class="btn btn-danger" asp-area="" asp-controller="Users" asp-action="Logout">Logout</a>
-                                </li>
+                                    <li class="nav-item">
+                                        <a class="btn btn-danger" asp-area="" asp-controller="Users" asp-action="Logout">Logout</a>
+                                    </li>
                         }
                         else
                         {
-                                <li class="nav-item">
+                                    <li class="nav-item">
                                         <a class="btn btn-info" asp-area="" asp-controller="Users" asp-action="SignUp">SignUp</a>
-                                </li>
-                                <li class="nav-item">
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="btn btn-success" asp-area="" asp-controller="Users" asp-action="Login">Login</a>
-                                </li>
+                                    </li>
                         }
                     </ul>
                 </div>
@@ -65,8 +128,7 @@
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
+    <footer class="footer text-muted">
         <div class="container">
             &copy; 2024 - EcommerceApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>

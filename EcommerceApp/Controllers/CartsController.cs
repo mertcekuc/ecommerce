@@ -101,7 +101,8 @@ namespace EcommerceApp.Controllers
             }
 
             _context.SaveChanges();
-            return RedirectToAction("Index", "Products");
+            return RedirectToAction("Index", "Carts");
+
         }
 
         public IActionResult RemoveFromCart(int cartDetailId)
