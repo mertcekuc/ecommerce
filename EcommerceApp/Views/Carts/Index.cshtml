@@ -8,35 +8,26 @@
 
 <style>
     .product-icon {
-        height: 50px; /* Adjust the height as needed */
-        object-fit: cover; /* Ensures the image covers the specified dimensions */
-        /*move image to center of cell*/
-        margin:auto;
-
+        height: 50px;
+        object-fit: cover;
+        margin: auto;
     }
     .form-inline .form-control {
-        width: 80px; /* Ensure the input field has a consistent width */
-    }
-    .btn-update {
-        margin-left: 10px;
+        width: 80px;
     }
     .table th, .table td {
-        vertical-align: middle; /* Vertically align table content */
-        text-align: center; /* Horizontally center table content */
-        padding: auto;
+        vertical-align: middle;
+        text-align: center;
     }
     .table td img {
-        max-height: 100px; /* Ensure image fits in the cell */
+        max-height: 100px;
         object-fit: cover;
     }
-    .update-quantity input{
+    .update-quantity input {
         margin: auto;
         padding: auto;
-        margin-bottom:5px;
-        
-	}
-    
-
+        margin-bottom: 5px;
+    }
 </style>
 
 <div class="container mt-4">
@@ -77,19 +68,16 @@
                             }
                         }
                         </td>
-                        <td>
-                        @Html.DisplayFor(modelItem => item.Product.Name)
-                        </td>
+                        <td>@Html.DisplayFor(modelItem => item.Product.Name)</td>
                         <td>
                             <div class="update-quantity">
-                            <form asp-controller="Carts" asp-action="UpdateQuantity" method="post" class="form-inline">
-                                <input type="hidden" name="cartDetailId" value="@item.Id" />
-                                <input type="number" min="1" max="10" name="quantity" value="@item.Quantity" class="form-control form-control-sm" placeholder="Quantity" />
-                                <button type="submit" class="btn btn-primary btn-sm btn-update">Update</button>
-                            </form></div>
-                        @{
-                            quantity += item.Quantity;
-                        }
+                                <input type="number" min="1" max="10" name="quantity" value="@item.Quantity"
+                                       class="form-control form-control-sm"
+                                       onchange="updateQuantity('@item.Id', this.value)" />
+                            @{
+                                quantity += item.Quantity;
+                            }
+                            </div>
                         </td>
                         <td>
                         @((item.Price * item.Quantity).ToString("C2", System.Globalization.CultureInfo.CurrentCulture))
@@ -113,9 +101,32 @@
             </tr>
         </tbody>
     </table>
+    <div class="text-end">
+        <a href="/Checkout" class="btn btn-success btn-lg mt-3">
+            <i class="bi bi-credit-card"></i> Proceed to Checkout
+        </a>
+    </div>
 </div>
 
 @section Scripts {
-        <!-- Add Bootstrap Icons CDN for icon usage -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script>
+            function updateQuantity(cartDetailId, newQuantity) {
+                $.ajax({
+                    url: '@Url.Action("UpdateQuantity", "Carts")',
+                    type: 'POST',
+                    data: {
+                        cartDetailId: cartDetailId,
+                        quantity: newQuantity
+                    },
+                    success: function (result) {
+                        location.reload(); // Reloads the page to reflect the updated quantity and total
+                    },
+                    error: function () {
+                        alert('An error occurred while updating the quantity.');
+                    }
+                });
+            }
+        </script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" />
 }

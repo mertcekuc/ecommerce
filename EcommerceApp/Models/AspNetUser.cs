@@ -51,5 +51,7 @@ public partial class AspNetUser
 
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
     public virtual ICollection<AspNetRole> Roles { get; set; } = new List<AspNetRole>();
 }

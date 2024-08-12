@@ -9,7 +9,7 @@
 
 <div class="container-fluid p-0">
     <!-- Hero Section -->
-    <div class="hero-section text-center text-white d-flex align-items-center justify-content-center" style="background-image: url('/img/hero.jpg'); height: 80vh; background-size: cover; background-position: center;">
+    <div class="hero-section text-center text-white d-flex align-items-center justify-content-center">
         <div>
             <h1 class="display-3">Welcome to EcommerceApp</h1>
             <p class="lead">Find the best products at unbeatable prices</p>
@@ -24,22 +24,26 @@
             <div class="row">
                 @foreach (var item in Model.Products)
                 {
-                        <div class="col-md-3">
-                            <div class="card shadow-sm mb-4">
-                            @foreach (string ext in extensions)
-                            {
-                                        <img src="~/img/Products/@($"{item.Id}{ext}")" 
-                                             class="card-img-top" 
-                                             onload="imageLoaded=true;" 
-                                             onerror="this.style.display='none';" 
-                                             style="height: 250px; width: 100%; object-fit: cover;">
-                            }
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">@item.Name</h5>
-                                    <p class="card-text text-muted">@((item.Price).ToString("C2"))</p>
-                                    <a href="/Products/Details/@item.Id" class="btn btn-success btn-sm">View Details</a>
+                        <div class="col-md-3 mb-4">
+                            <a href="@Url.Action("Details", "Products", new { id = item.Id })" class="text-decoration-none text-dark">
+                                <div class="card h-100 shadow-sm">
+                                @foreach (string ext in extensions)
+                                {
+                                    if (!imageLoaded)
+                                    {
+                                                    <img src="~/img/Products/@($"{item.Id}{ext}")"
+                                                         alt="@item.Name"
+                                                         class="card-img-top img-fluid"
+                                                         onerror="this.style.display='none';"
+                                                         onload="this.style.display='block'; imageLoaded=true;" />
+                                    }
+                                }
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">@item.Name</h5>
+                                        <p class="card-text text-muted">@item.Price.ToString("C2")</p>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                 }
             </div>
@@ -53,14 +57,16 @@
             <div class="row">
                 @for (int i = 1; i <= 3; i++)
                 {
-                        <div class="col-md-4">
-                            <div class="card shadow-sm mb-4">
-                                <img src="~/img/Categories/@($"{i}.jpg")" class="card-img-top" alt="Category @i" style="height: 250px; width: 100%; object-fit: cover;">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Category @i</h5>
-                                    <a href="#" class="btn btn-primary btn-sm">Explore</a>
+                        <div class="col-md-4 mb-4">
+                            <a href="#" class="text-decoration-none text-dark category-card">
+                                <div class="card h-100 shadow-sm">
+                                    <img src="~/img/Categories/@($"{i}.jpg")" class="card-img-top img-fluid" alt="Category @i">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Category @i</h5>
+                                        <a href="#" class="btn btn-primary btn-sm">Explore</a>
+                                    </div>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                 }
             </div>
@@ -68,7 +74,7 @@
     </section>
 
     <!-- Call to Action -->
-    <section class="py-5 text-white text-center" style="background-color: #343a40;">
+    <section class="cta-section py-5 text-white text-center">
         <div class="container">
             <h2 class="display-4">Join Our Newsletter</h2>
             <p class="lead">Stay updated with the latest offers and products</p>
@@ -91,11 +97,100 @@
 
 <style>
     .hero-section {
-        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.1)), url('/img/hero.jpg');
+        background-image: url('/img/Home/Header.jpg');
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+        height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
     }
+
+    .hero-section h1, .hero-section p {
+        margin-bottom: 0.5rem;
+    }
+
+    .card {
+        border-radius: 10px;
+        
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
     .card-img-top {
-        height: 250px; /* Set a consistent height */
-        width: 100%; /* Ensure the image takes full width */
-        object-fit: cover; /* Cover the container while maintaining aspect ratio */
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        height: 200px;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-img-top {
+        transform: scale(1.1);
+    }
+
+    .category-card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .category-card:hover {
+        transform: scale(1.03);
+    }
+
+    .cta-section {
+        background-color: #343a40;
+        transition: background-color 0.3s ease;
+    }
+
+    .cta-section:hover {
+        background-color: #495057;
+    }
+
+    footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+
+    footer a {
+        color: #6c757d;
+        text-decoration: none;
+    }
+
+    footer a:hover {
+        text-decoration: underline;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.card-img-top').forEach(img => {
+            img.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+
+            img.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>

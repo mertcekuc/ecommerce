@@ -37,6 +37,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<City> Cities { get; set; }
 
+    public virtual DbSet<Comment> Comments { get; set; }
+
     public virtual DbSet<Country> Countries { get; set; }
 
     public virtual DbSet<Product> Products { get; set; }
@@ -203,6 +205,27 @@ public partial class EcommerceContext : DbContext
                 .HasForeignKey(d => d.CountryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_City_Country");
+        });
+
+        modelBuilder.Entity<Comment>(entity =>
+        {
+            entity.ToTable("Comment");
+
+            entity.Property(e => e.Comment1)
+                .HasMaxLength(1000)
+                .IsFixedLength()
+                .HasColumnName("Comment");
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Comment_Product");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Comment_User");
         });
 
         modelBuilder.Entity<Country>(entity =>

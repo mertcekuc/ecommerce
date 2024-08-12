@@ -6,18 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EcommerceApp.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace EcommerceApp.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly EcommerceContext _context;
+        private readonly UserManager<User> _userManager;
 
-
-        public ProductsController(EcommerceContext context)
+        public ProductsController(EcommerceContext context, UserManager<User> userManager)
         {
             _context = context;
-
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -28,7 +29,11 @@ namespace EcommerceApp.Controllers
         }
 
         public IActionResult Details(int id) {
+            //
             var product = _context.Products.Find(id);
+            product.Comments = _context.Comments.Where(c => c.ProductId == id).Include(c => c.User).ToList();
+
+            
             return View(product);
         }
         
@@ -169,6 +174,26 @@ namespace EcommerceApp.Controllers
             }
 
             return RedirectToAction("Edit", new { id = product.Id });
+
+        }
+
+        [HttpPost]
+        public IActionResult AddComment()
+        {
+            int userId = _userManager.GetUserId(User) == null ? 0 : int.Parse(_userManager.GetUserId(User));
+            if (userId == 0)
+                return RedirectToAction("Login", "Users");
+            Comment comment = new Comment
+            {
+                ProductId = Convert.ToInt32(Request.Form["ProductId"]),
+                UserId = userId,
+                Comment1 = Request.Form["Content"],
+                CreatedDate = DateTime.Now
+            };
+
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+            return RedirectToAction("Details", new { id = comment.ProductId });
         }
 
 
