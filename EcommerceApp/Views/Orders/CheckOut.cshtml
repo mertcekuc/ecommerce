@@ -1,0 +1,138 @@
+﻿@model EcommerceApp.Models.ViewModels.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<h1 class="text-center my-4">Checkout</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4><i class="fas fa-shopping-cart"></i> Order Summary</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group mb-3">
+                        @foreach (var item in Model.CartItems)
+                        {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@item.Product.Name (x@item.Quantity)</span>
+                                    <span>@item.Product.Price.ToString("C")</span>
+                                </li>
+                        }
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Total</span>
+                            <strong>@Model.CartTotal.ToString("C")</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address and Payment -->
+        <div class="col-md-6">
+            <!-- Address Section -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4><i class="fas fa-map-marker-alt"></i> Shipping Address</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="PlaceOrder">
+                        <div class="form-group">
+                            <label asp-for="SelectedAddressId" class="control-label">Select Address</label>
+                            <select asp-for="SelectedAddressId" class="form-control">
+                                <option value="">Select an address</option>
+                                @foreach (var address in Model.Addresses)
+                                {
+                                        <option value="@address.Id">@address.Street, @address.City.Name, @address.Country.Name - @address.PostalCode</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SelectedAddressId" class="text-danger"></span>
+                        </div>
+                        <div class="text-center">
+                            <a asp-controller="Users" asp-action="AddAddress" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Add New Address</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Payment Section -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4><i class="fas fa-credit-card"></i> Payment Method</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="PlaceOrder">
+                        <div class="form-group">
+                            <label asp-for="PaymentMethod" class="control-label">Select Payment Method</label>
+                            <select asp-for="PaymentMethod" class="form-control">
+                                <option value="CreditCard">Credit Card</option>
+                                <option value="PayPal">PayPal</option>
+                                <option value="BankTransfer">Bank Transfer</option>
+                            </select>
+                            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CreditCardNumber" class="control-label">Credit Card Number</label>
+                            <input asp-for="CreditCardNumber" class="form-control" placeholder="Enter your credit card number"/>
+                            <span asp-validation-for="CreditCardNumber" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CreditCardExpiry" class="control-label">Expiry Date</label>
+                            <input asp-for="CreditCardExpiry" class="form-control" placeholder="MM/YY"/>
+                            <span asp-validation-for="CreditCardExpiry" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CreditCardCvc" class="control-label">CVC</label>
+                            <input asp-for="CreditCardCvc" class="form-control" placeholder="CVC"/>
+                            <span asp-validation-for="CreditCardCvc" class="text-danger"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Confirm Order -->
+            <div class="card-footer text-center">
+                <form method="post" asp-action="PlaceOrder">
+                    <input type="submit" value="Place Order" class="btn btn-primary btn-lg" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+        <script>
+            // Any JavaScript for dynamic elements can go here
+        </script>
+}
+
+<style>
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        transition: box-shadow 0.3s ease-in-out;
+    }
+
+    .card:hover {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-image: linear-gradient(45deg, #007bff, #6610f2);
+    }
+
+    .btn-primary {
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+</style>

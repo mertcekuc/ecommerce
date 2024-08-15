@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using EcommerceApp.Models;
 using Microsoft.AspNetCore.Identity;
 using EcommerceApp.Models.ViewModels.Auth;
+using EcommerceApp.Models.ViewModels;
+using System.Runtime.Loader;
 
 namespace EcommerceApp.Controllers
 {
@@ -116,21 +118,29 @@ namespace EcommerceApp.Controllers
 
 
         // GET: Users/Details/5
-        public IActionResult Details(int? id)
+        public IActionResult Details()
         {
-            //if (id == null)
-            //{
-            //    return NotFound();
-            //}
+            
+            ProfileViewModel profileViewModel = new ProfileViewModel();
+            int id = _userManager.GetUserId(User) != null ? int.Parse(_userManager.GetUserId(User)) : 0;
+            if (id == 0)
+            {
+                return RedirectToAction("Login", "User");
+            }
 
-            //var user = _context.Users
-            //    .First(m => m.Id == id);
-            //if (user == null)
-            //{
-            //    return NotFound();
-            //}
+            AspNetUser user = _ecommerceContext.AspNetUsers.Find(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else
+            profileViewModel.User = user;
 
-            return View();
+            var address = _ecommerceContext.Addresses.Where(a => a.UserId == id).Include(a => a.City).Include(a => a.Country);
+            profileViewModel.Addresses = address.ToList();
+
+
+            return View(profileViewModel);
         }
 
         // GET: Users/Create
@@ -170,7 +180,7 @@ namespace EcommerceApp.Controllers
                 return NotFound();
             }
 
-            var user =  _context.Users.Find(id);
+            var user = _ecommerceContext.AspNetUsers.Find(id);
             if (user == null)
             {
                 return NotFound();
@@ -181,22 +191,28 @@ namespace EcommerceApp.Controllers
         // POST: Users/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        
-        [HttpPost]
-        public IActionResult Edit(int id)
-        {
-           
-            //var user = _context.Users.Find(id);
-            //user.LastName = Request.Form["LastName"];
-            //user.Name = Request.Form["Name"];
-            //user.UserName = Request.Form["UserName"];
-           
-            //user.ModifiedDate = DateTime.Now;
-            //_context.Update(user);
-            //_context.SaveChanges();
 
-            return RedirectToAction(nameof(Index));
+        [HttpPost]
+        public IActionResult Edit()
+        {
+            var user = _ecommerceContext.AspNetUsers.Find(Convert.ToInt32(Request.Form["Id"]));
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.LastName = Request.Form["LastName"];
+            user.FirstName = Request.Form["FirstName"];
+            user.UserName = Request.Form["UserName"];
+            user.Email = Request.Form["Email"];
+
+            _ecommerceContext.Update(user);
+            _ecommerceContext.SaveChanges();
+
+            return RedirectToAction("Details");
         }
+
 
         // GET: Users/Delete/5
         public IActionResult Delete(int? id)
@@ -247,6 +263,87 @@ namespace EcommerceApp.Controllers
             
         }
 
+        [HttpGet]
+        public IActionResult AddAddress()
+        {
+            ViewBag.Countries = _ecommerceContext.Countries.ToList();
+            return View(new Address());
+        }
+
+        [HttpPost]
+        public IActionResult AddAddress([Bind("Street","CountryId","CityId", "PostalCode")]Address address)
+        {
+            
+            address.UserId = int.Parse(_userManager.GetUserId(User));
+            address.CreatedDate = DateTime.Now;
+            _ecommerceContext.Addresses.Add(address);
+            _ecommerceContext.SaveChanges();
+
+           
+            return RedirectToAction("Details");
+        }
+
+        [HttpGet]
+        public JsonResult GetCitiesByCountry(int id)
+        {
+            var cities = _ecommerceContext.Cities
+                                 .Where(c => c.CountryId == id)
+                                 .Select(c => new { c.Id, c.Name })
+                                 .ToList();
+
+            return Json(cities);
+        }
+
+        public IActionResult EditAddress(int id)
+        {
+            ViewBag.Countries = _ecommerceContext.Countries.ToList();
+
+            var address = _ecommerceContext.Addresses
+                .Include(a => a.City)
+                .Include(a => a.Country)
+                .FirstOrDefault(a => a.Id == id);
+
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            //var model = new EditAddressViewModel
+            //{
+            //    Id = address.Id,
+            //    Street = address.Street,
+            //    CityId = address.CityId,
+            //    CountryId = address.CountryId,
+            //    PostalCode = address.PostalCode,
+            //    AvailableCountries = _ecommerceContext.Countries.ToList(),
+            //    AvailableCities = _ecommerceContext.Cities.Where(c => c.CountryId == address.CountryId).ToList()
+            //};
+
+            return View(address);
+        }
+
+        [HttpPost]
+        public IActionResult EditAddress()
+        {
+            
+                var address = _ecommerceContext.Addresses.Find(Convert.ToInt32(Request.Form["Id"]));
+
+                if (address == null)
+                {
+                    return NotFound();
+                }
+
+                address.Street = Request.Form["Street"];
+                address.CityId = Convert.ToInt32(Request.Form["CityId"]);
+                address.CountryId = Convert.ToInt32(Request.Form["CountryId"]);
+                address.PostalCode = Convert.ToInt32(Request.Form["PostalCode"]);
+
+            _ecommerceContext.Update(address);
+            _ecommerceContext.SaveChanges();
+
+                return RedirectToAction("Details", new { id = address.UserId });
+           
+        }
 
     }
 }

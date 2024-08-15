@@ -53,5 +53,7 @@ public partial class AspNetUser
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
     public virtual ICollection<AspNetRole> Roles { get; set; } = new List<AspNetRole>();
 }

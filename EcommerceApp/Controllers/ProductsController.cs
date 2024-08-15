@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EcommerceApp.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EcommerceApp.Controllers
 {
@@ -43,12 +44,17 @@ namespace EcommerceApp.Controllers
             
         }
 
+        [Authorize]
         [HttpPost]
         public IActionResult Create([Bind("Name,Description")] Product product)
         {
+            if (_userManager.GetUserId(User) == null)
+                return RedirectToAction("Login", "Users");
+
+            int userId = Convert.ToInt32(_userManager.GetUserId(User));
             product.Price = Convert.ToDecimal(Request.Form["Price"]);
             product.CreateDate = DateTime.Now;
-            product.CreateUserId = 1;
+            product.CreateUserId = userId;
             product.CategoryId = Convert.ToInt32(Request.Form["CategoryId"]);
 
             var file = Request.Form.Files["img"];

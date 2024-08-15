@@ -73,7 +73,7 @@
                             <div class="update-quantity">
                                 <input type="number" min="1" max="10" name="quantity" value="@item.Quantity"
                                        class="form-control form-control-sm"
-                                       onchange="updateQuantity('@item.Id', this.value)" />
+                                           onblur="updateQuantity('@item.Id', this.value)" />
                             @{
                                 quantity += item.Quantity;
                             }
@@ -102,7 +102,7 @@
         </tbody>
     </table>
     <div class="text-end">
-        <a href="/Checkout" class="btn btn-success btn-lg mt-3">
+        <a asp-action="CheckOut" asp-controller="Orders" class="btn btn-success btn-lg mt-3">
             <i class="bi bi-credit-card"></i> Proceed to Checkout
         </a>
     </div>
