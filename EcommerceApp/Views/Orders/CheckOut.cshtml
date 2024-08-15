@@ -1,8 +1,9 @@
-﻿@model EcommerceApp.Models.ViewModels.CheckoutViewModel
-
+﻿@model EcommerceApp.Models.AspNetUser
 @{
-    ViewData["Title"] = "Checkout";
+    ViewData["Title"] = "CheckOut";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 
 <h1 class="text-center my-4">Checkout</h1>
 
@@ -10,22 +11,31 @@
     <div class="row">
         <!-- Order Summary -->
         <div class="col-md-6">
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-gradient-primary text-white">
+            <div class="card mb-4 shadow-lg border-light">
+                <div class="card-header bg-primary text-white">
                     <h4><i class="fas fa-shopping-cart"></i> Order Summary</h4>
                 </div>
                 <div class="card-body">
                     <ul class="list-group mb-3">
-                        @foreach (var item in Model.CartItems)
+                        @if (Model.Carts != null)
                         {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>@item.Product.Name (x@item.Quantity)</span>
-                                    <span>@item.Product.Price.ToString("C")</span>
-                                </li>
+                            foreach (var cart in Model.Carts)
+                            {
+                                if (cart.CartDetails != null)
+                                {
+                                    foreach (var item in cart.CartDetails)
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center border-0">
+                                            <span>@item.Product?.Name (x @item.Quantity)</span>
+                                            <span>@item.Product?.Price.ToString("C")</span>
+                                        </li>
+                                    }
+                                }
+                            }
                         }
-                        <li class="list-group-item d-flex justify-content-between">
+                        <li class="list-group-item d-flex justify-content-between border-top">
                             <span>Total</span>
-                            <strong>@Model.CartTotal.ToString("C")</strong>
+                            <strong>@Model.Carts?.Sum(c => c.CartDetails?.Sum(cd => cd.Product?.Price * cd.Quantity) ?? 0).ToString("C")</strong>
                         </li>
                     </ul>
                 </div>
@@ -34,81 +44,75 @@
 
         <!-- Address and Payment -->
         <div class="col-md-6">
-            <!-- Address Section -->
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-gradient-primary text-white">
-                    <h4><i class="fas fa-map-marker-alt"></i> Shipping Address</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post" asp-action="PlaceOrder">
+            <form method="post" asp-action="PlaceOrder">
+                <input type="hidden" name="UserId" value="@Model.Id" />
+
+                <!-- Address Section -->
+                <div class="card mb-4 shadow-lg border-light">
+                    <div class="card-header bg-primary text-white">
+                        <h4><i class="fas fa-map-marker-alt"></i> Shipping Address</h4>
+                    </div>
+                    <div class="card-body">
                         <div class="form-group">
-                            <label asp-for="SelectedAddressId" class="control-label">Select Address</label>
-                            <select asp-for="SelectedAddressId" class="form-control">
+                            <label class="control-label">Select Address</label>
+                            <select name="AddressId" class="form-control">
                                 <option value="">Select an address</option>
-                                @foreach (var address in Model.Addresses)
+                                @if (Model.Addresses != null)
                                 {
+                                    foreach (var address in Model.Addresses)
+                                    {
                                         <option value="@address.Id">@address.Street, @address.City.Name, @address.Country.Name - @address.PostalCode</option>
+                                    }
                                 }
                             </select>
-                            <span asp-validation-for="SelectedAddressId" class="text-danger"></span>
+                            <span class="text-danger"></span>
                         </div>
-                        <div class="text-center">
+                        <div class="text-center mt-3">
                             <a asp-controller="Users" asp-action="AddAddress" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Add New Address</a>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Payment Section -->
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-gradient-primary text-white">
-                    <h4><i class="fas fa-credit-card"></i> Payment Method</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post" asp-action="PlaceOrder">
+                <!-- Payment Section -->
+                <div class="card mb-4 shadow-lg border-light">
+                    <div class="card-header bg-primary text-white">
+                        <h4><i class="fas fa-credit-card"></i> Payment Method</h4>
+                    </div>
+                    <div class="card-body">
                         <div class="form-group">
-                            <label asp-for="PaymentMethod" class="control-label">Select Payment Method</label>
-                            <select asp-for="PaymentMethod" class="form-control">
+                            <label for="PaymentMethod" class="control-label">Select Payment Method</label>
+                            <select id="PaymentMethod" name="PaymentMethod" class="form-control">
+                                <option value="">Select a payment method</option>
                                 <option value="CreditCard">Credit Card</option>
                                 <option value="PayPal">PayPal</option>
                                 <option value="BankTransfer">Bank Transfer</option>
                             </select>
-                            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                            <span class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="CreditCardNumber" class="control-label">Credit Card Number</label>
-                            <input asp-for="CreditCardNumber" class="form-control" placeholder="Enter your credit card number"/>
-                            <span asp-validation-for="CreditCardNumber" class="text-danger"></span>
+                            <label  for="CreditCardNumber" class="control-label">Credit Card Number</label>
+                            <input required id="CreditCardNumber" name="CreditCardNumber" class="form-control" placeholder="Enter your credit card number" />
+                            <span class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="CreditCardExpiry" class="control-label">Expiry Date</label>
-                            <input asp-for="CreditCardExpiry" class="form-control" placeholder="MM/YY"/>
-                            <span asp-validation-for="CreditCardExpiry" class="text-danger"></span>
+                            <label for="CreditCardExpiry" class="control-label">Expiry Date</label>
+                            <input required id="CreditCardExpiry" name="CreditCardExpiry" class="form-control" placeholder="MM/YY" />
+                            <span class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="CreditCardCvc" class="control-label">CVC</label>
-                            <input asp-for="CreditCardCvc" class="form-control" placeholder="CVC"/>
-                            <span asp-validation-for="CreditCardCvc" class="text-danger"></span>
+                            <label for="CreditCardCvc" class="control-label">CVC</label>
+                            <input required id="CreditCardCvc" name="CreditCardCvc" class="form-control" placeholder="CVC" />
+                            <span class="text-danger"></span>
                         </div>
-                    </form>
+                    </div>
+                    <div class="card-footer text-center">
+                        <input type="submit" value="Place Order" class="btn btn-primary btn-lg btn-block" />
+                    </div>
                 </div>
-            </div>
-
-            <!-- Confirm Order -->
-            <div class="card-footer text-center">
-                <form method="post" asp-action="PlaceOrder">
-                    <input type="submit" value="Place Order" class="btn btn-primary btn-lg" />
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </div>
-
-@section Scripts {
-        <script>
-            // Any JavaScript for dynamic elements can go here
-        </script>
-}
 
 <style>
     .card {
@@ -117,22 +121,32 @@
         transition: box-shadow 0.3s ease-in-out;
     }
 
-    .card:hover {
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    }
-
     .card-header {
         background-image: linear-gradient(45deg, #007bff, #6610f2);
     }
+
+        .card-header h4 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
 
     .btn-primary {
         border-radius: 50px;
         padding: 10px 20px;
         font-size: 16px;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .btn-primary:hover {
-        background-color: #0056b3;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        .btn-primary:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+    .shadow-lg {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .border-light {
+        border-color: #e9ecef;
     }
 </style>

@@ -63,17 +63,19 @@
                                 @foreach (string ext in extensions)
                                 {
                                     if (!imageLoaded)
-                                    {
+                                    {                           
+                                                                <a href="/Categories/CategoryPage/@cat.Id">
                                                                 <img src="~/img/Categories/@($"{cat.Id}{ext}")"
                                                                      alt="@cat.Name"
                                                                      class="card-img-top img-fluid"
                                                                      onerror="this.style.display='none';"
-                                                                     onload="this.style.display='block'; imageLoaded=true;" />
+                                                 onload="this.style.display='block'; imageLoaded=true;" />
+                                        </a>
                                     }
                                 }
                                     <div class="card-body text-center">
                                         <h5 class="card-title">@cat.Name</h5>
-                                        <a href="#" class="btn btn-primary btn-sm">Explore</a>
+                                        <a href="/Categories/CategoryPage/@cat.Id" class="btn btn-primary btn-sm">Explore</a>
                                     </div>
                                 </div>
                             </a>
@@ -83,14 +85,6 @@
         </div>
     </section>
 
-
-
-    <!-- Footer -->
-    <footer class="text-center text-muted py-4">
-        <div class="container">
-            <p>&copy; 2024 EcommerceApp | <a href="#" class="text-muted">Privacy Policy</a></p>
-        </div>
-    </footer>
 </div>
 
 <style>

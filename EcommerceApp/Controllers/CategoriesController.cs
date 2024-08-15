@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EcommerceApp.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EcommerceApp.Controllers
 {
@@ -20,10 +21,33 @@ namespace EcommerceApp.Controllers
             _context = context;
             _userManager = userManager;
         }
-        
+
+
+     
+
+            [HttpGet]
+            public IActionResult GetCategories()
+            {
+                var categories = _context.Categories.ToList();
+                return Json(categories);
+            }
+
+
+
         public IActionResult Index()
         {
             return View(_context.Categories.ToList());
+        }
+
+        public IActionResult CategoryPage(int id)
+        {
+            var category = _context.Categories.Where(c => c.Id == id).Include(c => c.Products).FirstOrDefault();
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return View(category);
         }
       
         public IActionResult Details(int id) {
@@ -89,7 +113,7 @@ namespace EcommerceApp.Controllers
         public IActionResult Delete(int id) {
             return View(_context.Categories.Find(id));
         }
-
+        [Authorize("Admin")]
         public IActionResult Create() {
             return View();
         }

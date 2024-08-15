@@ -37,14 +37,15 @@ namespace EcommerceApp.Controllers
             
             return View(product);
         }
-        
+
+        [Authorize]
         public IActionResult Create() {
             ViewBag.Categories = _context.Categories.ToList();
             return View();
             
         }
 
-        [Authorize]
+        
         [HttpPost]
         public IActionResult Create([Bind("Name,Description")] Product product)
         {
@@ -202,6 +203,13 @@ namespace EcommerceApp.Controllers
             return RedirectToAction("Details", new { id = comment.ProductId });
         }
 
+        public IActionResult Search()
+        {
+            string word = Request.Form["word"];
+            var products = _context.Products.Where(p => p.Name.Contains(word)).ToList();
+
+            return View(products);
+        }
 
     }
 }

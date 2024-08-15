@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using EcommerceApp.Models.ViewModels.Auth;
 using EcommerceApp.Models.ViewModels;
 using System.Runtime.Loader;
+using EcommerceApp.Models.Authentication;
 
 namespace EcommerceApp.Controllers
 {
@@ -17,16 +18,18 @@ namespace EcommerceApp.Controllers
     {
         readonly UserManager<User> _userManager;
         readonly SignInManager<User> _signInManager;
+        readonly RoleManager<AppRole> _roleManager;
 
         private readonly EcommerceDbContext _context;
         private readonly EcommerceContext _ecommerceContext;
 
-        public UsersController(EcommerceContext ecommerceContext, EcommerceDbContext context, UserManager<User> userManager, SignInManager<User> signInManager)
+        public UsersController(RoleManager<AppRole> roleManager, EcommerceContext ecommerceContext, EcommerceDbContext context, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _ecommerceContext = ecommerceContext;
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
 
@@ -45,7 +48,9 @@ namespace EcommerceApp.Controllers
         public async Task<IActionResult> SignUp(UserViewModel userViewModel)
         {
             if (ModelState.IsValid)
-            {
+            {   
+                //_roleManager.CreateAsync(new AppRole { Name = "Admin" }).Wait();
+                //_roleManager.CreateAsync(new AppRole { Name = "Customer" }).Wait();
                 User appUser = new User
                 {
                     UserName = userViewModel.UserName,
@@ -57,7 +62,8 @@ namespace EcommerceApp.Controllers
 
                 IdentityResult result = await _userManager.CreateAsync(appUser, userViewModel.Password);
                 if (result.Succeeded)
-                {
+                {   
+                    _userManager.AddToRoleAsync(appUser, "Customer").Wait();
                     var cart = new Cart()
 					{
 						UserId = appUser.Id
@@ -117,7 +123,6 @@ namespace EcommerceApp.Controllers
         }
 
 
-        // GET: Users/Details/5
         public IActionResult Details()
         {
             
@@ -136,10 +141,19 @@ namespace EcommerceApp.Controllers
             else
             profileViewModel.User = user;
 
-            var address = _ecommerceContext.Addresses.Where(a => a.UserId == id).Include(a => a.City).Include(a => a.Country);
+           var address = _ecommerceContext.Addresses.Where(a => a.UserId == id).Include(a => a.City).Include(a => a.Country);
             profileViewModel.Addresses = address.ToList();
 
-
+            var orders = _ecommerceContext.Orders?.Where(o => o.UserId == id)
+                .Include(c => c.OrderDetails)
+                .ThenInclude(c=> c.Product).
+              Include(c=> c.User).
+              ThenInclude(c=> c.Addresses)
+              .ThenInclude(c=> c.City)
+              .ThenInclude(c=> c.Country)
+              .Include(c=> c.Status).OrderByDescending(c=> c.CreatedDate).ToList();
+            //.Include(o => o.OrderDetails).ThenInclude(o => o.Product).Include(o => o.Address).ThenInclude(o => o.City).ThenInclude(o => o.Country).Include(o => o.Status).OrderDescending().ToList();
+            profileViewModel.Orders = orders; 
             return View(profileViewModel);
         }
 
@@ -344,6 +358,8 @@ namespace EcommerceApp.Controllers
                 return RedirectToAction("Details", new { id = address.UserId });
            
         }
+
+       
 
     }
 }

@@ -44,6 +44,7 @@
             color: #bbb;
             padding: 10px 0;
             text-align: center;
+            margin-top:100px;
         }
         footer a {
             color: #f0ad4e;
@@ -53,6 +54,7 @@
         .btn {
             border-radius: 50px;
             transition: all 0.3s ease;
+            margin: 0 3px;
         }
 
         .btn-info:hover, .btn-success:hover, .btn-danger:hover {
@@ -62,7 +64,6 @@
 
         /* Container Styling */
         .container {
-            padding-top: 20px;
             padding-bottom: 20px;
         }
 
@@ -74,6 +75,7 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        .
     </style>
 </head>
 <body class="fade-in">
@@ -93,11 +95,15 @@
                                 <i class="fas fa-home"></i> Home
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Categories" asp-action="Index">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-list"></i> Categories
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="categoriesDropdown" id="categoriesDropdownMenu">
+                                <li><a class="dropdown-item" href="#">Loading...</a></li>
+                            </ul>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Products" asp-action="Index">
                                 <i class="fas fa-box-open"></i> Products
@@ -105,45 +111,50 @@
                         </li>
                         @if (SignInManager.IsSignedIn(User))
                         {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Carts" asp-action="Index">
-                                        <i class="fas fa-shopping-cart"></i> Cart
-                                    </a>
-                                </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Carts" asp-action="Index">
+                                    <i class="fas fa-shopping-cart"></i> Cart
+                                </a>
+                            </li>
                         }
                     </ul>
+                    <form class="d-flex ms-auto" asp-controller="Products" asp-action="Search">
+                        <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search" name="word">
+                        <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
+                    </form>
                     <ul class="navbar-nav ms-auto">
                         @if (SignInManager.IsSignedIn(User))
                         {
-                                <li class="nav-item">
-                                    <a class="btn btn-secondary" asp-area="" asp-controller="Users" asp-action="Details">
-                                        <i class="fas fa-user"></i> My Profile
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="btn btn-danger" asp-area="" asp-controller="Users" asp-action="Logout">
-                                        <i class="fas fa-sign-out-alt"></i> Logout
-                                    </a>
-                                </li>
+                            <li class="nav-item">
+                                <a class="btn btn-secondary" asp-area="" asp-controller="Users" asp-action="Details">
+                                    <i class="fas fa-user"></i> My Profile
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-danger" asp-area="" asp-controller="Users" asp-action="Logout">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </li>
                         }
                         else
                         {
-                                <li class="nav-item">
-                                    <a class="btn btn-info" asp-area="" asp-controller="Users" asp-action="SignUp">
-                                        <i class="fas fa-user-plus"></i> SignUp
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="btn btn-success" asp-area="" asp-controller="Users" asp-action="Login">
-                                        <i class="fas fa-sign-in-alt"></i> Login
-                                    </a>
-                                </li>
+                            <li class="nav-item">
+                                <a class="btn btn-info" asp-area="" asp-controller="Users" asp-action="SignUp">
+                                    <i class="fas fa-user-plus"></i> SignUp
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-success" asp-area="" asp-controller="Users" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </a>
+                            </li>
                         }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -161,3 +172,23 @@
 
 </body>
 </html>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/Categories/GetCategories',
+            type: 'GET',
+            success: function (categories) {
+                var dropdownMenu = $('#categoriesDropdownMenu');
+                dropdownMenu.empty(); // Clear existing items
+                categories.forEach(function (category) {
+                    dropdownMenu.append(
+                        `<li><a class="dropdown-item" href="/Categories/CategoryPage/${category.id}">${category.name}</a></li>`
+                    );
+                });
+            },
+            error: function () {
+                $('#categoriesDropdownMenu').html('<li><a class="dropdown-item" href="#">Failed to load categories</a></li>');
+            }
+        });
+    });
+</script>
