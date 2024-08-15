@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Home";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    string[] extensions = { ".jpg", ".jpeg", ".png", ".gif" };
+    string[] extensions = { ".jpg", ".jpeg", ".png", ".gif",".webp" };
     var imageLoaded = false;
 }
 
@@ -55,14 +55,24 @@
         <div class="container">
             <h2 class="text-center mb-5">Shop by Category</h2>
             <div class="row">
-                @for (int i = 1; i <= 3; i++)
+                @foreach(Category cat in Model.Categories)
                 {
                         <div class="col-md-4 mb-4">
                             <a href="#" class="text-decoration-none text-dark category-card">
                                 <div class="card h-100 shadow-sm">
-                                    <img src="~/img/Categories/@($"{i}.jpg")" class="card-img-top img-fluid" alt="Category @i">
+                                @foreach (string ext in extensions)
+                                {
+                                    if (!imageLoaded)
+                                    {
+                                                                <img src="~/img/Categories/@($"{cat.Id}{ext}")"
+                                                                     alt="@cat.Name"
+                                                                     class="card-img-top img-fluid"
+                                                                     onerror="this.style.display='none';"
+                                                                     onload="this.style.display='block'; imageLoaded=true;" />
+                                    }
+                                }
                                     <div class="card-body text-center">
-                                        <h5 class="card-title">Category @i</h5>
+                                        <h5 class="card-title">@cat.Name</h5>
                                         <a href="#" class="btn btn-primary btn-sm">Explore</a>
                                     </div>
                                 </div>
@@ -73,19 +83,7 @@
         </div>
     </section>
 
-    <!-- Call to Action -->
-    <section class="cta-section py-5 text-white text-center">
-        <div class="container">
-            <h2 class="display-4">Join Our Newsletter</h2>
-            <p class="lead">Stay updated with the latest offers and products</p>
-            <form class="form-inline justify-content-center mt-4">
-                <div class="form-group">
-                    <input type="email" class="form-control form-control-lg me-2" placeholder="Enter your email" />
-                </div>
-                <button type="submit" class="btn btn-danger btn-lg">Subscribe</button>
-            </form>
-        </div>
-    </section>
+
 
     <!-- Footer -->
     <footer class="text-center text-muted py-4">

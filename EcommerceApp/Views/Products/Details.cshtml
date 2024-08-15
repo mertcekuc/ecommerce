@@ -11,7 +11,7 @@
 
 <div class="container mt-5">
     <div class="row">
-        <!-- Product Image -->
+       
         <div class="col-md-6 d-flex justify-content-center align-items-center">
             @foreach (var extension in extensions)
             {
@@ -43,7 +43,7 @@
 
             <form id="addToCartForm" asp-controller="Carts" asp-action="AddToCart" method="post" class="d-inline">
                 <input type="hidden" name="productId" value="@Model.Id" />
-                <button type="submit" class="btn btn-success btn-lg px-4 py-2"><i class="bi bi-cart-plus"></i> Add to Cart</button>
+                <button type="submit" class="btn btn-success btn-lg px-4 py-2 add-to-cart"><i class="bi bi-cart-plus"></i> Add to Cart</button>
             </form>
 
             <a asp-action="Index" class="btn btn-secondary btn-lg ms-2 px-4 py-2"><i class="bi bi-arrow-left"></i> Back to Products</a>
@@ -88,7 +88,7 @@
     </div>
 </div>
 
-<!-- Toast Notification -->
+<!-- Notification -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="addToCartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
@@ -155,9 +155,9 @@
         img.addEventListener('mouseleave', function() {
             this.style.transform = 'scale(1)';
         });
-    });
+    }); 
 
-    document.querySelector('.btn-success').addEventListener('click', function(event) {
+    document.querySelector('.add-to-cart').addEventListener('click', function(event) {
         event.preventDefault();
         const form = document.getElementById('addToCartForm');
         const formData = new FormData(form);

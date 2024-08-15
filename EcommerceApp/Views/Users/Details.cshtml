@@ -1,50 +1,125 @@
-﻿@model EcommerceApp.Models.User
+﻿@model EcommerceApp.Models.ViewModels.ProfileViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "User Details";
 }
 
-<h1>Details</h1>
+<h1 class="text-center my-4">User Details</h1>
 
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserName)
-        </dd>
-      
-       
-     @*    <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </dt> *@
-      @*   <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ModifiedDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ModifiedDate)
-        </dd> *@
-    </dl>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header bg-gradient-primary text-white text-center">
+            <h4><i class="fas fa-user-circle"></i> @Model.User.FirstName @Model.User.LastName</h4>
+            <p class="mb-0"><i class="fas fa-envelope"></i> @Model.User.UserName</p>
+        </div>
+        <div class="card-body">
+            <ul class="nav nav-tabs" id="userTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="true"><i class="fas fa-id-card"></i> Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="addresses-tab" data-toggle="tab" href="#addresses" role="tab" aria-controls="addresses" aria-selected="false"><i class="fas fa-map-marker-alt"></i> Addresses</a>
+                </li>
+            </ul>
+            <div class="tab-content mt-4" id="userTabContent">
+                <!-- Profile Tab -->
+                <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    <dl class="row">
+                        <dt class="col-sm-3 text-right font-weight-bold"><i class="fas fa-at"></i> Email:</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.User.Email)</dd>
+
+                        <dt class="col-sm-3 text-right font-weight-bold"><i class="fas fa-user"></i> Username:</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.User.UserName)</dd>
+
+                        <dt class="col-sm-3 text-right font-weight-bold"><i class="fas fa-user-tag"></i> First Name:</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.User.FirstName)</dd>
+
+                        <dt class="col-sm-3 text-right font-weight-bold"><i class="fas fa-user-tag"></i> Last Name:</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.User.LastName)</dd>
+
+                        <dt class="col-sm-3 text-right font-weight-bold"><i class="fas fa-calendar-alt"></i> Joined Date:</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.User.CreatedDate)</dd>
+                    </dl>
+                </div>
+                <!-- Addresses Tab -->
+                <div class="tab-pane fade" id="addresses" role="tabpanel" aria-labelledby="addresses-tab">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-center"><i class="fas fa-map"></i> Your Addresses</h5>
+                        <a asp-controller="Users" asp-action="AddAddress" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Add Address</a>
+                    </div>
+                    <ul class="list-group mt-3">
+                        @foreach (var address in Model.Addresses)
+                        {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><i class="fas fa-map-marker-alt"></i> @address.Street</strong>, @address.City.Name, @address.PostalCode
+                                        <div class="text-muted"><i class="fas fa-globe"></i> @address.Country.Name</div>
+                                    </div>
+                                    <div>
+                                        <a asp-controller="Users" asp-action="EditAddress" asp-route-id="@address.Id" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                                    </div>
+                                </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-action="Edit" asp-route-id="@Model.User.Id" class="btn btn-warning mr-2"><i class="fas fa-edit"></i> Edit Profile</a>
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(45deg, #007bff, #6610f2);
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: #007bff;
+        color: #fff !important;
+        border-color: #007bff;
+        font-weight: bold;
+    }
+
+    .nav-tabs .nav-link {
+        color: #007bff !important;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+        background-color: #f0f0f0;
+        color: #007bff !important;
+    }
+
+    .btn {
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: #fff;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: #fff;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        color: #fff;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

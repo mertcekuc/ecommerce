@@ -41,6 +41,12 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Country> Countries { get; set; }
 
+    public virtual DbSet<Order> Orders { get; set; }
+
+    public virtual DbSet<OrderDetail> OrderDetails { get; set; }
+
+    public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -53,9 +59,6 @@ public partial class EcommerceContext : DbContext
         {
             entity.ToTable("Address");
 
-            entity.Property(e => e.Id)
-                .HasMaxLength(10)
-                .IsFixedLength();
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             entity.Property(e => e.Street)
@@ -234,6 +237,54 @@ public partial class EcommerceContext : DbContext
 
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
+                .IsFixedLength();
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.ToTable("Order");
+
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.AddressId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Order_Address");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Order_OrderStatus");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Order_AspNetUsers");
+        });
+
+        modelBuilder.Entity<OrderDetail>(entity =>
+        {
+            entity.ToTable("OrderDetail");
+
+            entity.Property(e => e.Price).HasColumnType("money");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OrderDetail_Order");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OrderDetail_Product");
+        });
+
+        modelBuilder.Entity<OrderStatus>(entity =>
+        {
+            entity.ToTable("OrderStatus");
+
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
                 .IsFixedLength();
         });
 
